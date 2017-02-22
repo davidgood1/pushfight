@@ -330,24 +330,6 @@ proc pushfight::board {} {
                     error "wrong # args: should be \"$subCmd from to\""
                 }
                 lassign $args from to
-                # if {![pushfight::isBoardLoc $from]} {
-                #     error "location '$from' is not on the board"
-                # }
-                # if {![pushfight::isBoardLoc $to]} {
-                #     error "location '$to' is not on the board"
-                # }
-                # if {[lsearch $my(pieces) $from] == -1} {
-                #     error "no piece to move at location '$from'"
-                # }
-                # if {$from eq [lindex $my(pieces) end]} {
-                #     error "piece cannot move because it is anchored"
-                # }
-                # if {[lsearch $my(pieces) $to] != -1} {
-                #     error "cannot move to location '$to' because it is not empty"
-                # }
-                # set idx [lsearch $my(pieces) $from]
-                # set my(pieces) [lreplace $my(pieces) $idx $idx $to]
-                # return $my(pieces)
                 set my(pieces) [pushfight::Move $from $to $my(pieces)]
             }
             push {
