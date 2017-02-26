@@ -71,17 +71,6 @@ proc pushfight::isLoseLoc loc {
     return 0
 }
 
-# proc pushfight::canPushRow {from dir pieces} {
-#     if {$dir ne "+" & $dig ne "-"} {
-#         # error "dir must be '+' or '-'"
-#         return 0
-#     }
-#     if {[llength pieces] != 11} {
-#         # error "wrong number of pieces"
-#         return 0
-#     }
-# }
-
 proc pushfight::LocCoords loc {
     lassign [split $loc {}] x y
     set x [string map -nocase {a 0 b 1 c 2 d 3} $x]
