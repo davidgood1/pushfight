@@ -1,26 +1,18 @@
 # reference board
-# . = location does not exist
-# x = off board "lose" loacation
+#   = location does not exist
+# - = off board "lose" loacation
 # o = regular board location
-# - = center line
+# | = center line
 #
-#  White Side
-#    a b c d
-# 9  . x x .
-# 8  x o o x
-# 7  o o o x
-# 6  o o o o
-# 5  o o o o
-#    -------
-# 4  o o o o
-# 3  o o o o
-# 2  x o o o
-# 1  x o o x
-# 0  . x x .
-#    a b c d
-#  Brown Side
+# White Side  Brown Side
 #
-# Board Notation is LetterNumber (e.g. b4, a7, etc)
+#   0 1 2 3 4 5 6 7 8 9
+# A   - - o o|o o o -
+# B - o o o o|o o o o -
+# C - o o o o|o o o o -
+# D   - o o o|o o - -
+#
+# Board Notation is LetterNumber (e.g. B4, A7, etc)
 # Pieces are kept in the following list order:
 #   WhSquare1 WhSquare2 WhSquare3 WhRound1 WhRound2 BrSquare1 BrSquare2 BrSquare3 BrRound1 BrRound2 Anchor
 
@@ -28,17 +20,12 @@ namespace eval pushfight {
     variable S
     set S(counter) 0
     set S(boardLocs) {
-           b8 c8
-        a7 b7 c7
-        a6 b6 c6 d6
-        a5 b5 c5 d5
-        a4 b4 c4 d4
-        a3 b3 c3 d3
-           b2 c2 d2
-           b1 c1
-           b0 c0
+              A3 A4 A5 A6 A7
+        B1 B2 B3 B4 B5 B6 B7 B8
+        C1 C2 C3 C4 C5 C6 C7 C8
+           D2 D3 D4 D5 D6
     }
-    set S(loseLocs) {b9 c9 a8 d8 d7 a2 a1 d1 b0 c0}
+    set S(loseLocs) {A1 A2 A8 B0 B9 C0 C9 D1 D7 D8}
 }
 
 # returns 1 if loc is either a regular board location or a lose location, 0 otherwise
@@ -72,13 +59,13 @@ proc pushfight::isLoseLoc loc {
 }
 
 proc pushfight::LocCoords loc {
-    lassign [split $loc {}] x y
-    set x [string map -nocase {a 0 b 1 c 2 d 3} $x]
-    return [list $x $y]
+    lassign [split $loc {}] row col
+    set row [string map -nocase {A 0 B 1 C 2 D 3} $row]
+    return [list $row $col]
 }
 
-proc pushfight::CoordsLoc {x y} {
-    join [list [format %c [expr $x + 97]] $y] {}
+proc pushfight::CoordsLoc {row col} {
+    join [list [format %c [expr $row + 65]] $col] {}
 }
 
 # returns the list of adjacent locs from loc.  Returned locs are either on the board or lose locations
@@ -86,12 +73,12 @@ proc pushfight::AdjacentLocs loc {
     if {![isValidLoc $loc]} {
         return {}
     }
-    lassign [LocCoords $loc] x y
+    lassign [LocCoords $loc] row col
     set locs {}
-    lappend locs [CoordsLoc [expr $x + 1] $y]; # East
-    lappend locs [CoordsLoc [expr $x - 1] $y]; # West
-    lappend locs [CoordsLoc $x [expr $y + 1]]; # North
-    lappend locs [CoordsLoc $x [expr $y - 1]]; # South
+    lappend locs [CoordsLoc [expr $row - 1] $col]; # North
+    lappend locs [CoordsLoc [expr $row + 1] $col]; # South
+    lappend locs [CoordsLoc $row [expr $col + 1]]; # East
+    lappend locs [CoordsLoc $row [expr $col - 1]]; # West
     set validLocs {}
     foreach l $locs {
         if {[isValidLoc $l]} {
@@ -111,15 +98,15 @@ proc pushfight::LocDir {from to} {
         return {}
     }
 
-    lassign [LocCoords $from] colFrom rowFrom
-    lassign [LocCoords $to] colTo rowTo
+    lassign [LocCoords $from] rowFrom colFrom
+    lassign [LocCoords $to] rowTo colTo
 
     # Locs must share a col or row, otherwise they are not adjacent
     if {$colFrom == $colTo} {
         if {$rowTo > $rowFrom} {
-            return n
-        } else {
             return s
+        } else {
+            return n
         }
     } elseif {$rowFrom == $rowTo} {
         if {$colTo > $colFrom} {
@@ -136,17 +123,17 @@ proc pushfight::IncrLoc {from dir} {
     if {![isBoardLoc $from]} {
         return {}
     }
-    lassign [LocCoords $from] col row
+    lassign [LocCoords $from] row col
     switch -- $dir {
-        n {incr row}
-        s {incr row -1}
+        n {incr row -1}
+        s {incr row}
         e {incr col}
         w {incr col -1}
         default {
             return {}
         }
     }
-    set loc [CoordsLoc $col $row]
+    set loc [CoordsLoc $row $col]
     if {![isValidLoc $loc]} {
         return {}
     }
@@ -269,13 +256,14 @@ proc pushfight::board {} {
     set name pfboard[incr S(counter)]
 
     upvar #0 $name var
-    set var(pieces) [list b6 b5 d5 a5 c5 a4 d4 c3 b4 c4 -]
+    set var(pieces) [list C3 C4 A4 B4 D4 A5 D5 B6 B5 C5 -]
 
     proc ::$name args {
         set name [lindex [info level 0] 0]
         upvar #0 $name my
-        set args [lassign $args subcmd]
-        switch -- $subcmd {
+        set args [lassign $args subCmd]
+        set args [lmap v $args {string toupper $v}]
+        switch -- $subCmd {
             pieces {
                 if {$args eq {}} {
                     return $my(pieces)
@@ -352,7 +340,7 @@ proc pushfight::board {} {
                 rename ::$name {}; # Delete my proc
             }
             default {
-                error "unknown subcommand \"$subcmd\": must be pieces, move, push, or delete"
+                error "unknown subcommand \"$subCmd\": must be pieces, move, push, or delete"
             }
         }
     }
