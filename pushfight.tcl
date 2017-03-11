@@ -176,14 +176,17 @@ proc pushfight::CanPush {from to pieces} {
 
 # TODO: make this function check for invalid moves and report errors
 proc pushfight::move {from to pieces} {
-    if {![isBoardLoc $from]} {
-        error "location '$from' is not on the board"
-    }
-    if {![isBoardLoc $to]} {
-        error "location '$to' is not on the board"
+    if {$from eq $to} {
+        return $pieces
     }
     if {![isPiece $from $pieces]} {
         error "no piece at location '$from'"
+    }
+    if {![isBoardLoc $from]} {
+        error "piece is not on the board"
+    }
+    if {![isBoardLoc $to]} {
+        error "location '$to' is not on the board"
     }
     if {[isAnchor $from $pieces]} {
         error "piece is anchored"
@@ -192,7 +195,7 @@ proc pushfight::move {from to pieces} {
         error "location '$to' is not empty"
     }
 
-    set i [lsearch $pieces $from]
+    set i [lsearch -exact $pieces $from]
     return [lreplace $pieces $i $i $to]
 }
 
