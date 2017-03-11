@@ -175,7 +175,7 @@ proc pushfight::CanPush {from to pieces} {
 }
 
 # TODO: make this function check for invalid moves and report errors
-proc pushfight::Move {from to pieces} {
+proc pushfight::move {from to pieces} {
     if {![isBoardLoc $from]} {
         error "location '$from' is not on the board"
     }
@@ -307,7 +307,7 @@ proc pushfight::board {} {
                     error "wrong # args: should be \"$subCmd from to\""
                 }
                 lassign $args from to
-                set my(pieces) [pushfight::Move $from $to $my(pieces)]
+                set my(pieces) [pushfight::move $from $to $my(pieces)]
             }
             push {
                 if {[llength $args] != 2} {
