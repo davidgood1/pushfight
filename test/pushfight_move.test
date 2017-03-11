@@ -52,7 +52,7 @@ test move_returns_errorNotEmpty_when_movingOntoAnotherPiece {
     pushfight::move C3 C4 $DefaultPieces
 } -returnCodes error -result "location 'C4' is not empty"
 
-test move_returns_errorPath_when_noPathToLocation {
-} -body {
-    pushfight::move C3 B7 $DefaultPieces
-} -returnCodes error -result "no path to location 'B7'"
+# test move_returns_errorPath_when_noPathToLocation {
+# } -body {
+#     pushfight::move C3 B7 $DefaultPieces
+# } -returnCodes error -result "no path to location 'B7'"
