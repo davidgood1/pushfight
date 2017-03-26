@@ -144,6 +144,55 @@ proc pushfight::IncrLoc {from dir} {
     return $loc
 }
 
+##
+# Add a location to a location list.
+# Locations in the list are guaranteed to be unique and not empty
+# @param list a list of locations
+# @param loc location to add to the list
+# @returns a new list of unique locations
+# @note Duplicates in the starting list will not be removed.
+#   The order is not specified.
+proc pushfight::AddLoc {list args} {
+    foreach loc $args {
+        if {$loc ne {} && [lsearch $list $loc] == -1} {
+            lappend list $loc
+        }
+    }
+    return $list
+}
+
+##
+# Returns the location of the next row, same column of a given location
+# @param loc starting location
+# @param dir 1 for increment, -1 for decrement
+# @returns a location if the final row is in the range A - D, empty list otherwise
+# @note The final location is not checked whether it is on the board, or even legal.
+#       That is left up to the caller.
+proc pushfight::NextRow {loc {dir 1}} {
+    lassign [LocCoords $loc] row col
+    incr row $dir
+    if {$row > 3 || $row < 0} {
+        return {}
+    }
+    return [CoordsLoc $row $col]
+}
+
+##
+# Returns the location of the next col, same row of a given location
+# @param loc starting location
+# @param dir 1 for increment, -1 for decrement
+# @returns a location if the final col is in the range 0 - 9, empty list otherwise
+# @note The final location is not checked whether it is on the board, or even legal.
+#       That is left up to the caller.
+proc pushfight::NextCol {loc {dir 1}} {
+    lassign [LocCoords $loc] row col
+    incr col $dir
+    if {$col > 9 || $col < 0} {
+        return {}
+    }
+    return [CoordsLoc $row $col]
+}
+
 # returns 1 if yes, 0 if no
 proc pushfight::CanPush {from to pieces} {
     if {[lsearch $pieces $to] == -1} {
@@ -195,6 +244,44 @@ proc pushfight::move {from to pieces} {
 
     set i [lsearch -exact $pieces $from]
     return [lreplace $pieces $i $i $to]
+}
+
+##
+# Calculates all of the possible places a piece can move
+# @param loc location of the piece to move
+# @pieces all of the pieces on the board
+# @returns a sorted list of all possible move locations
+proc pushfight::moveOptions {loc pieces} {
+    if {![isPiece $loc $pieces]} {
+        error "no piece at location '$loc'"
+    }
+    if {![isBoardLoc $loc]} {
+        error "piece is not on the board"
+    }
+
+    if {[isAnchor $loc $pieces]} {
+        return {}
+    }
+
+    set checkLocs $loc
+    set res {}
+    set doneLocs {}
+    while {[llength $checkLocs] > 0} {
+        # Pop the next loc from the list
+        set checkLocs [lassign $checkLocs loc]
+        # Each neighboring location is checked to see if it is a valid move location.
+        # When valid move locations are found, they must also be checked.
+        set neighbors [list [NextRow $loc] [NextRow $loc -1] [NextCol $loc] [NextCol $loc -1]]
+        foreach n $neighbors {
+            if {[isBoardLoc $n] == 1 && [lsearch $doneLocs $n] == -1
+                && [lsearch $pieces $n] == -1} {
+                set res       [AddLoc $res $n]
+                set checkLocs [AddLoc $checkLocs $n]
+            }
+            set doneLocs [AddLoc $doneLocs $n]
+        }
+    }
+    return [lsort $res]
 }
 
 proc pushfight::isPiece {loc pieces} {

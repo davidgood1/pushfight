@@ -1,0 +1,48 @@
+package require tcltest
+namespace import ::tcltest::*
+
+source ../pushfight.tcl
+
+# Test Board
+#      __________
+# ____| | | |B| |__
+# | |W| |w| | |b| |
+# | | |W|W|b|*| | |
+# --| | |w|B| |----
+#   -----------
+# Where W = White Square, w = White round
+#       B = Brown Square, b = Brown round
+#       * = Anchor on Brown Square
+set TestPieces [list B2 C3 C4 B4 D4 D5 A6 C6 C5 B7 C6]
+
+test moveOptions_returns_emptyList_when_pieceIsAnchored {
+} -body {
+    pushfight::moveOptions C6 $TestPieces
+} -result {}
+
+test moveOptions_returns_emptyList_when_pieceIsSurrounded {
+} -body {
+    pushfight::moveOptions C4 $TestPieces
+} -result {}
+
+test moveOptions_returns_error_when_noPieceAtLocation {
+} -body {
+    pushfight::moveOptions D3 $TestPieces
+} -returnCodes error -result "no piece at location 'D3'"
+
+test moveOptions_returns_error_when_pieceIsNotOnTheBoard {
+} -body {
+    pushfight::moveOptions A2 [list A2 C3 C4 B4 D4 D5 A6 C6 B7 C6]
+} -returnCodes error -result "piece is not on the board"
+
+test moveOptions_returns_correctLocations_when_pieceCanMoveOne {
+} -body {
+    pushfight::moveOptions D5 $TestPieces
+} -result {D6}
+
+test moveOptions_returns_correctLocations_when_pieceCanMoveMany {
+} -body {
+    pushfight::moveOptions B2 $TestPieces
+} -result {A3 A4 A5 B1 B3 B5 B6 C1 C2 D2 D3}
+
+cleanupTests
