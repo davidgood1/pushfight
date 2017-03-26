@@ -40,7 +40,7 @@ proc pushfight::isValidLoc loc {
     return 0
 }
 
-# returns 1 if loc is either a regular board location or a lose location, 0 otherwise
+# returns 1 if loc is on the board, 0 otherwise
 proc pushfight::isBoardLoc loc {
     variable S
     if {[lsearch $S(boardLocs) $loc] > -1} {
@@ -50,13 +50,13 @@ proc pushfight::isBoardLoc loc {
 }
 
 # returns 1 if loc is a lose location, 0 otherwise
-proc pushfight::isLoseLoc loc {
-    variable S
-    if {[lsearch $S(boardLocs) $loc] > -1} {
-        return 1
-    }
-    return 0
-}
+# proc pushfight::isLoseLoc loc {
+#     variable S
+#     if {[lsearch $S(boardLocs) $loc] > -1} {
+#         return 1
+#     }
+#     return 0
+# }
 
 proc pushfight::LocCoords loc {
     lassign [split $loc {}] row col
