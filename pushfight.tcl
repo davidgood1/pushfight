@@ -174,10 +174,9 @@ proc pushfight::CanPush {from to pieces} {
     return 0
 }
 
-# TODO: make this function check for invalid moves and report errors
 proc pushfight::move {from to pieces} {
     if {$from eq $to} {
-        return $pieces
+        error "cannot move to the same location"
     }
     if {![isPiece $from $pieces]} {
         error "no piece at location '$from'"
@@ -193,6 +192,11 @@ proc pushfight::move {from to pieces} {
     }
     if {[isPiece $to $pieces]} {
         error "location '$to' is not empty"
+    }
+
+    set validMoves [moveOptions $from $pieces]
+    if {[lsearch $validMoves $to] == -1} {
+        error "no path to location '$to'"
     }
 
     set i [lsearch -exact $pieces $from]
