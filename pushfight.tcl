@@ -88,7 +88,7 @@ proc pushfight::AdjacentLocs loc {
     return $validLocs
 }
 
-# returns a cardinal direction n e s w of travel starting at from going toward to
+# returns a cardinal direction N E S W of travel starting at from going toward to
 # or {} if error
 proc pushfight::LocDir {from to} {
     if {![isValidLoc $from] || ![isValidLoc $to]} {
@@ -103,16 +103,20 @@ proc pushfight::LocDir {from to} {
 
     # Locs must share a col or row, otherwise they are not adjacent
     if {$colFrom == $colTo} {
-        if {$rowTo > $rowFrom} {
-            return s
+        if {[expr abs($rowTo - $rowFrom)] > 1} {
+            return {}
+        } elseif {$rowTo > $rowFrom} {
+            return S
         } else {
-            return n
+            return N
         }
     } elseif {$rowFrom == $rowTo} {
-        if {$colTo > $colFrom} {
-            return e
+        if {[expr abs($colTo - $colFrom)] > 1} {
+            return {}
+        } elseif {$colTo > $colFrom} {
+            return E
         } else {
-            return w
+            return W
         }
     } else {
         return {}
@@ -125,10 +129,10 @@ proc pushfight::IncrLoc {from dir} {
     }
     lassign [LocCoords $from] row col
     switch -- $dir {
-        n {incr row -1}
-        s {incr row}
-        e {incr col}
-        w {incr col -1}
+        N {incr row -1}
+        S {incr row}
+        E {incr col}
+        W {incr col -1}
         default {
             return {}
         }
