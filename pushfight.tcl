@@ -123,7 +123,7 @@ proc pushfight::LocDir {from to} {
     }
 }
 
-proc pushfight::IncrLoc {from dir} {
+proc pushfight::NextLoc {from dir} {
     if {![isBoardLoc $from]} {
         return {}
     }
@@ -212,7 +212,7 @@ proc pushfight::CanPush {from to pieces} {
         if {$to eq [lindex $pieces end]} {
             return 0
         }
-        set to [IncrLoc $to $dir]
+        set to [NextLoc $to $dir]
     }
     return 0
 }
@@ -346,7 +346,7 @@ proc pushfight::push {from to pieces} {
     while {[isPiece $to $pieces]} {
         lappend pushList $to
         set from $to
-        set to [IncrLoc $to $dir]
+        set to [NextLoc $to $dir]
     }
     # Move all of the pieces in the list
     while {[llength $pushList] > 0} {
@@ -397,7 +397,7 @@ proc pushfight::Bump {from to pieces} {
 
     if {[isPiece $to $pieces]} {
         set dir [LocDir $from $to]
-        set pieces [Bump $to [IncrLoc $to $dir] $pieces]
+        set pieces [Bump $to [NextLoc $to $dir] $pieces]
     }
     set idx [lsearch $pieces $from]
     return [lreplace $pieces $idx $idx $to]
