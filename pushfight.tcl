@@ -316,6 +316,51 @@ proc pushfight::pushOptions {loc pieces} {
     return [lsort $res]
 }
 
+##
+# Executes a push
+# @param from location of the pushing piece
+# @param to location of the piece being pushed
+# @param all of the pieces on the board
+# @returns a list of the new pieces locations after the push if successful,
+# or throws an error
+proc pushfight::push {from to pieces} {
+    if {[llength $pieces] != 11} {
+        error "wrong number of pieces: should be 11 but got [llength $pieces]"
+    }
+    if {![isPiece $from $pieces]} {
+        error "no piece at location '$from'"
+    }
+    if {![isSquare $from $pieces]} {
+        error "piece at location '$from' can not push"
+    }
+    if {![CanPush $from $to $pieces]} {
+        error "not a valid push to location '$to'"
+    }
+
+    # This will be the anchor position after all pieces are pushed
+    set anchor $to
+
+    # Get all of the pieces which will be moved
+    set dir [LocDir $from $to]
+    set pushList $from
+    while {[isPiece $to $pieces]} {
+        lappend pushList $to
+        set from $to
+        set to [IncrLoc $to $dir]
+    }
+    # Move all of the pieces in the list
+    while {[llength $pushList] > 0} {
+        set from [lindex $pushList end]
+        set pushList [lrange $pushList 0 end-1]
+        set idx [lsearch $pieces $from]
+        set pieces [lreplace $pieces $idx $idx $to]
+        set to $from
+    }
+    # Update the anchor
+    set pieces [lreplace $pieces end end $anchor]
+    return $pieces
+}
+
 proc pushfight::isPiece {loc pieces} {
     if {[lsearch $pieces $loc] != -1 && $loc ne "-"} {
         return 1
