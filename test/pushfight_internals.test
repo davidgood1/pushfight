@@ -5,56 +5,6 @@ source ../pushfight.tcl
 
 set DefaultPieces [list C3 C4 A4 B4 D4 A5 D5 B6 B5 C5 -]
 
-test NextRow_returns_correctLoc_when_nextRowIsOnBoardIncrement {
-} -body {
-    pushfight::NextRow C3 1
-} -result {D3}
-
-test NextRow_returns_defaultsToIncrement_when_noDirectionGiven {
-} -body {
-    pushfight::NextRow C3
-} -result {D3}
-
-test NextRow_returns_empty_when_nextRowDoesNotExistIncrement {
-} -body {
-    pushfight::NextRow D3 1
-} -result {}
-
-test NextRow_returns_correctLoc_when_nextRowIsOnBoardDecrement {
-} -body {
-    pushfight::NextRow C3 -1
-} -result {B3}
-
-test NextRow_returns_empty_when_nextRowDoesNotExistDecrement {
-} -body {
-    pushfight::NextRow A3 -1
-} -result {}
-
-test NextCol_returns_correctLoc_when_nextColIsOnBoardIncrement {
-} -body {
-    pushfight::NextCol C3 1
-} -result {C4}
-
-test NextCol_returns_defaultsToIncrement_when_noDirectionGiven {
-} -body {
-    pushfight::NextCol C3
-} -result {C4}
-
-test NextCol_returns_empty_when_nextColDoesNotExistIncrement {
-} -body {
-    pushfight::NextCol C9 1
-} -result {}
-
-test NextCol_returns_correctLoc_when_nextColIsOnBoardDecrement {
-} -body {
-    pushfight::NextCol C3 -1
-} -result {C2}
-
-test NextCol_returns_empty_when_nextColDoesNotExistDecrement {
-} -body {
-    pushfight::NextCol C0 -1
-} -result {}
-
 test AddLoc_returns_correctList_when_startListIsEmpty {
 } -body {
     pushfight::AddLoc {} A1

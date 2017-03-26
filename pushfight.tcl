@@ -161,38 +161,6 @@ proc pushfight::AddLoc {list args} {
     return $list
 }
 
-##
-# Returns the location of the next row, same column of a given location
-# @param loc starting location
-# @param dir 1 for increment, -1 for decrement
-# @returns a location if the final row is in the range A - D, empty list otherwise
-# @note The final location is not checked whether it is on the board, or even legal.
-#       That is left up to the caller.
-proc pushfight::NextRow {loc {dir 1}} {
-    lassign [LocCoords $loc] row col
-    incr row $dir
-    if {$row > 3 || $row < 0} {
-        return {}
-    }
-    return [CoordsLoc $row $col]
-}
-
-##
-# Returns the location of the next col, same row of a given location
-# @param loc starting location
-# @param dir 1 for increment, -1 for decrement
-# @returns a location if the final col is in the range 0 - 9, empty list otherwise
-# @note The final location is not checked whether it is on the board, or even legal.
-#       That is left up to the caller.
-proc pushfight::NextCol {loc {dir 1}} {
-    lassign [LocCoords $loc] row col
-    incr col $dir
-    if {$col > 9 || $col < 0} {
-        return {}
-    }
-    return [CoordsLoc $row $col]
-}
-
 # returns 1 if yes, 0 if no
 proc pushfight::CanPush {from to pieces} {
     if {[lsearch $pieces $to] == -1} {
@@ -271,7 +239,7 @@ proc pushfight::moveOptions {loc pieces} {
         set checkLocs [lassign $checkLocs loc]
         # Each neighboring location is checked to see if it is a valid move location.
         # When valid move locations are found, they must also be checked.
-        set neighbors [list [NextRow $loc] [NextRow $loc -1] [NextCol $loc] [NextCol $loc -1]]
+        set neighbors [list [NextLoc $loc N] [NextLoc $loc S] [NextLoc $loc E] [NextLoc $loc W]]
         foreach n $neighbors {
             if {[isBoardLoc $n] == 1 && [lsearch $doneLocs $n] == -1
                 && [lsearch $pieces $n] == -1} {
