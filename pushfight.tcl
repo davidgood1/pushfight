@@ -441,19 +441,7 @@ proc pushfight::board {} {
                     error "must be: pushOptions from"
                 }
                 lassign $args from
-                # Check that from is a block piece
-                if {[lsearch [lrange $my(pieces) 0 2] $from] == -1 \
-                        && [lsearch [lrange $my(pieces) 5 7] $from] == -1} {
-                    return {}
-                }
-                set locs [pushfight::AdjacentLocs $from]
-                set pushOpts {}
-                foreach to $locs {
-                    if {[pushfight::CanPush $from $to $my(pieces)]} {
-                        lappend pushOpts $to
-                    }
-                }
-                return $pushOpts
+                return [pushOptions $from $my(pieces)]
             }
             delete {
                 array unset $name; # Delete my vars
