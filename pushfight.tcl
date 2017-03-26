@@ -146,22 +146,12 @@ proc pushfight::IncrLoc {from dir} {
 
 # returns 1 if yes, 0 if no
 proc pushfight::CanPush {from to pieces} {
-    if {[llength $pieces] != 11} {
-        # puts "invalid board"
-        return 0
-    }
     if {[lsearch $pieces $to] == -1} {
-        # puts "must push toward another piece"
-        return 0
-    }
-    if {[lsearch [AdjacentLocs $from] $to] == -1} {
-        # puts "must push adjacent piece"
         return 0
     }
 
     set dir [LocDir $from $to]
     if {$dir eq {}} {
-        # puts "invalid direction"
         return 0
     }
 
