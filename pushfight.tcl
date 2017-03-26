@@ -429,6 +429,13 @@ proc pushfight::board {} {
                 lassign $args from to
                 set my(pieces) [pushfight::move $from $to $my(pieces)]
             }
+            moveOptions {
+                if {[llength $args] != 1} {
+                    error "must be: moveOptions from"
+                }
+                lassign $args from
+                return [moveOptions $from $my(pieces)]
+            }
             push {
                 if {[llength $args] != 2} {
                     error "wrong # args: should be \"$subCmd from to\""
