@@ -371,28 +371,6 @@ proc pushfight::Bump {from to pieces} {
     return [lreplace $pieces $idx $idx $to]
 }
 
-# returns the new board if push was successful, or throws an error
-proc pushfight::Push {from to pieces} {
-    if {[llength $pieces] != 11} {
-        error "invalid board"
-    }
-
-    # Check that from is a block piece
-    if {   [lsearch [lrange $pieces 0 2] $from] == -1 \
-        && [lsearch [lrange $pieces 5 7] $from] == -1} {
-        error "must push with a block piece"
-    }
-
-    if {[catch {
-        set pieces [Bump $from $to $pieces]
-    } err]} {
-        error "invalid push"
-    }
-
-    return [lreplace $pieces end end $to]
-}
-
-
 proc pushfight::board {} {
     variable S
     set name pfboard[incr S(counter)]
@@ -456,7 +434,7 @@ proc pushfight::board {} {
                     error "wrong # args: should be \"$subCmd from to\""
                 }
                 lassign $args from to
-                set my(pieces) [pushfight::Push $from $to $my(pieces)]
+                set my(pieces) [pushfight::push $from $to $my(pieces)]
             }
             pushOptions {
                 if {[llength $args] != 1} {
