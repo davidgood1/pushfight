@@ -284,6 +284,38 @@ proc pushfight::moveOptions {loc pieces} {
     return [lsort $res]
 }
 
+##
+# Calculates all of the possible legal pushes a piece can make
+# @param loc location of the pushing piece
+# @pieces all of the pieces on the board
+# @returns a sorted list of all possible push locations
+proc pushfight::pushOptions {loc pieces} {
+    if {[llength $pieces] != 11} {
+        error "wrong number of pieces: should be 11 but got [llength $pieces]"
+    }
+    if {![isPiece $loc $pieces]} {
+        error "no piece at location '$loc'"
+    }
+    if {![isBoardLoc $loc]} {
+        error "piece at location '$loc' is not on the board"
+    }
+    if {![isSquare $loc $pieces]} {
+        error "piece at location '$loc' can not push"
+    }
+    if {[isAnchor $loc $pieces]} {
+        error "piece at location '$loc' is anchored"
+    }
+
+    set res {}
+    foreach to [AdjacentLocs $loc] {
+        if {[CanPush $loc $to $pieces]} {
+            lappend res $to
+        }
+    }
+
+    return [lsort $res]
+}
+
 proc pushfight::isPiece {loc pieces} {
     if {[lsearch $pieces $loc] != -1 && $loc ne "-"} {
         return 1
@@ -298,6 +330,15 @@ proc pushfight::isAnchor {loc pieces} {
     } else {
         return 0
     }
+}
+
+proc pushfight::isSquare {loc pieces} {
+    # Check that from is a block piece
+    if {   [lsearch [lrange $pieces 0 2] $loc] == -1 \
+               && [lsearch [lrange $pieces 5 7] $loc] == -1} {
+        return 0
+    }
+    return 1
 }
 
 proc pushfight::Bump {from to pieces} {

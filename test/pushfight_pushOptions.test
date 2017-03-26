@@ -1,0 +1,68 @@
+package require tcltest
+namespace import ::tcltest::*
+
+source ../pushfight.tcl
+
+# Test Board
+#      __________
+# ____| | | |B| |__
+# | |W| |w| | |b| |
+# | | |W|W|b|B| | |
+# --| | |w|*| |----
+#   -----------
+# Where W = White Square, w = White round
+#       B = Brown Square, b = Brown round
+#       * = Anchor on Brown Square
+set TestPieces [list B2 C3 C4 B4 D4 D5 A6 C6 C5 B7 D5]
+
+test pushOptions_returns_error_when_notEnoughPieces {
+} -body {
+    pushfight::pushOptions C3 [lrange $TestPieces 0 end-1]
+} -returnCodes error -result "wrong number of pieces: should be 11 but got 10"
+
+test pushOptions_returns_error_when_tooManyPieces {
+} -body {
+    pushfight::pushOptions C3 [list B2 C3 C4 B4 D4 D5 A6 C6 C5 B7 D5 C8]
+} -returnCodes error -result "wrong number of pieces: should be 11 but got 12"
+
+test pushOptions_returns_error_when_noPieceAtLocation {
+} -body {
+    pushfight::pushOptions B5 $TestPieces
+} -returnCodes error -result "no piece at location 'B5'"
+
+test pushOptions_returns_error_when_pieceIsNotSquare {
+} -body {
+    pushfight::pushOptions C5 $TestPieces
+} -returnCodes error -result "piece at location 'C5' can not push"
+
+test pushOptions_returns_error_when_pieceIsNotOnTheBoard {
+} -body {
+    pushfight::pushOptions A2 [list A2 C3 C4 B4 D4 D5 A6 C6 C5 B7 D5]
+} -returnCodes error -result "piece at location 'A2' is not on the board"
+
+test pushOptions_returns_error_when_pieceIsAnchored {
+} -body {
+    pushfight::pushOptions D5 $TestPieces
+} -returnCodes error -result "piece at location 'D5' is anchored"
+
+test pushOptions_returns_emptyList_when_pieceIsIsolated {
+} -body {
+    pushfight::pushOptions B2 $TestPieces
+} -result {}
+
+test pushOptions_returns_correctLocations_when_pieceCanPushOne {
+} -body {
+    pushfight::pushOptions C3 $TestPieces
+} -result {C4}
+
+test pushOptions_returns_correctLocations_when_pieceCanPushMany {
+} -body {
+    pushfight::pushOptions C4 $TestPieces
+} -result {B4 C3 C5}
+
+test pushOptions_returns_correctLocations_when_anchoredPieceInLine {
+} -body {
+    pushfight::pushOptions C4 [list B2 C3 C4 B4 D4 D5 A6 C6 C5 B7 C6]
+} -result {B4 C3}
+
+cleanupTests
