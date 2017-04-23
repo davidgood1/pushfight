@@ -173,6 +173,9 @@ proc pushfight::GUIProc {widgetName subCmd args} {
         pieces {
             return [$GUI($widgetName.board) pieces {*}$args]
         }
+        reset -
+        moveOptions -
+        pushOptions -
         move -
         push {
             if {[catch {$GUI($widgetName.board) $subCmd {*}$args} res]} {
