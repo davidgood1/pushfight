@@ -436,7 +436,7 @@ proc pushfight::board {} {
                     error "must be: moveOptions from"
                 }
                 lassign $args from
-                return [moveOptions $from $my(pieces)]
+                return [pushfight::moveOptions $from $my(pieces)]
             }
             push {
                 if {[llength $args] != 2} {
@@ -450,7 +450,7 @@ proc pushfight::board {} {
                     error "must be: pushOptions from"
                 }
                 lassign $args from
-                return [pushOptions $from $my(pieces)]
+                return [pushfight::pushOptions $from $my(pieces)]
             }
             delete {
                 array unset $name; # Delete my vars
