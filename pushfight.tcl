@@ -26,6 +26,7 @@ namespace eval pushfight {
            D2 D3 D4 D5 D6
     }
     set S(loseLocs) {A1 A2 A8 B0 B9 C0 C9 D1 D7 D8}
+    set S(pieces) {C3 C4 A4 B4 D4 A5 D5 B6 B5 C5 -}; # Default piece locations
 }
 
 # returns 1 if loc is either a regular board location or a lose location, 0 otherwise
@@ -376,7 +377,8 @@ proc pushfight::board {} {
     set name pfboard[incr S(counter)]
 
     upvar #0 $name var
-    set var(pieces) [list C3 C4 A4 B4 D4 A5 D5 B6 B5 C5 -]
+    set var(pieces) $S(pieces)
+    set var(piecesDefault) $S(pieces)
 
     proc ::$name args {
         set name [lindex [info level 0] 0]
