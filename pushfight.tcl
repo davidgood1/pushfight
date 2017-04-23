@@ -452,6 +452,12 @@ proc pushfight::board {} {
                 lassign $args from
                 return [pushfight::pushOptions $from $my(pieces)]
             }
+            reset {
+                if {[llength $args] > 0} {
+                    error "wrong # args: should be \"reset\""
+                }
+                set my(pieces) $my(piecesDefault)
+            }
             delete {
                 array unset $name; # Delete my vars
                 rename ::$name {}; # Delete my proc
