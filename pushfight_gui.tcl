@@ -251,6 +251,7 @@ proc reload {} {
         destroy $w
     }
     source pushfight_gui.tcl
+    source pushfight.tcl
     set gui [pushfight::gui]
     $gui configure -relief solid -borderwidth 2
     pack $gui -fill both -expand 1 -padx 5 -pady 5
