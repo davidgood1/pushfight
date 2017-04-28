@@ -299,6 +299,9 @@ proc pushfight::push {from to pieces} {
     if {![isPiece $from $pieces]} {
         error "no piece at location '$from'"
     }
+    if {[isAnchor $from $pieces]} {
+        error "piece is anchored"
+    }
     if {![isSquare $from $pieces]} {
         error "piece at location '$from' can not push"
     }

@@ -7,8 +7,8 @@ source ../pushfight.tcl
 #      __________
 # ____| | | |B| |__
 # | |W| |w| | |b| |
-# | | |W|W|b|B| | |
-# --| | |w|*| |----
+# | | |W|W|b|*| | |
+# --| | |w|B| |----
 #   -----------
 # Where W = White Square, w = White round
 #       B = Brown Square, b = Brown round
@@ -40,6 +40,11 @@ test push_returns_error_when_noPieceAtLocationTo {
 } -body {
     pushfight::push C3 B3 $TestPieces
 } -returnCodes error -result "not a valid push to location 'B3'"
+
+test push_returns_error_when_pieceIsAnchored {
+} -body {
+    pushfight::push C6 C5 $TestPieces
+} -returnCodes error -result "piece is anchored"
 
 test push_returns_error_when_pushIsBlockedByAnchor {
 } -body {
