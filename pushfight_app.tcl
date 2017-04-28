@@ -54,6 +54,22 @@ proc create_app {{win ""}} {
     gui_place_pieces [$G(board) pieces]
 }
 
+proc app_pieces {{pieces {}}} {
+    global G
+    global G
+    if {$pieces eq {}} {
+        return [$G(board) pieces]
+    }
+
+    if {[catch {$G(board) pieces {*}$pieces} err]} {
+        # TODO: log error to console
+        puts "error: $err"
+        return {}
+    } else {
+        return [$G(board) pieces]
+    }
+}
+
 proc gui_create win {
     global GUI
 
@@ -157,6 +173,7 @@ proc gui_create win {
     # Mouse Behaviors
     # TODO: add move behaviors
     bind $GUI(canvas) <Button-1> {gui_click %W %x %y}
+    bind $GUI(canvas) <Button-3> {gui_right_click %W %x %y}
 
     return $win
 }
@@ -164,8 +181,6 @@ proc gui_create win {
 proc gui_place_pieces {pieces} {
     global GUI
     set c $GUI(canvas)
-
-    puts "c = $c, pieces = $pieces"
 
     foreach tag {WS1 WS2 WS3 WR1 WR2 BS1 BS2 BS3 BR1 BR2 anchor} loc $pieces {
         set loc [string toupper $loc]
@@ -213,6 +228,21 @@ proc gui_place_pieces {pieces} {
 #     set G(ClickY) $y
 # }
 
+proc gui_right_click {win x y} {
+    global GUI
+    set loc [gui_get_loc_by_coords $win $x $y]
+    if {[gui_get_anchor_loc $win] eq $loc} {
+        set loc -
+    } elseif {[gui_get_piece_by_loc $win $loc] eq ""} {
+        return
+    }
+
+    set pieces [lreplace [app_pieces] end end $loc]
+    if {[app_pieces $pieces] ne ""} {
+        gui_place_pieces $pieces
+    }
+}
+
 proc gui_click {win x y} {
     global GUI
     set loc [gui_get_loc_by_coords $win $x $y]
@@ -238,7 +268,6 @@ proc gui_click {win x y} {
 }
 
 proc gui_move {win from to} {
-    puts [info level 0]
     global G
     global GUI
     if {[catch {$G(board) move $from $to} err]} {
@@ -251,7 +280,6 @@ proc gui_move {win from to} {
 }
 
 proc gui_push {win from to} {
-    puts [info level 0]
     global G
     global GUI
     if {[catch {$G(board) push $from $to} err]} {
@@ -261,6 +289,26 @@ proc gui_push {win from to} {
         $win dtag "selected" "selected"
         gui_place_pieces [$G(board) pieces]
     }
+}
+
+proc gui_get_anchor_loc {win} {
+    if {[$win itemcget "anchor" -state] eq "hidden"} {
+        return {}
+    }
+
+    set coords [$win bbox "anchor"]
+    if {$coords ne ""} {
+        foreach id [$win find overlapping {*}$coords] {
+            set tags [$win gettags $id]
+            if {[lsearch $tags "boardLoc"] != -1} {
+                set loc [lsearch -inline $tags loc_*]
+                return [string trimleft $loc loc_]
+            }
+        }
+    }
+
+    return {}
+
 }
 
 proc gui_get_loc_by_piece {win piece} {
