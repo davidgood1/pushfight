@@ -182,6 +182,10 @@ proc gui_place_pieces {pieces} {
     global GUI
     set c $GUI(canvas)
 
+    # Clear the selection if any
+    $c itemconfigure "selected" -outline $GUI(outlineColor)
+    $c dtag "selected" "selected"
+
     foreach tag {WS1 WS2 WS3 WR1 WR2 BS1 BS2 BS3 BR1 BR2 anchor} loc $pieces {
         set loc [string toupper $loc]
         if {$loc eq "-"} {
@@ -256,37 +260,34 @@ proc gui_click {win x y} {
             $win itemconfigure "selected" -outline $GUI(selectColor)
         }
     } else {
+        # Clicking same piece toggles select
         if {$piece eq $selected} {
             $win itemconfigure "selected" -outline $GUI(outlineColor)
             $win dtag $selected "selected"
         } elseif {$piece eq ""} {
-            gui_move $win [gui_get_loc_by_piece $win $selected] $loc
+            app_move [gui_get_loc_by_piece $win $selected] $loc
         } else {
-            gui_push $win [gui_get_loc_by_piece $win $selected] $loc
+            app_push [gui_get_loc_by_piece $win $selected] $loc
         }
     }
 }
 
-proc gui_move {win from to} {
+proc app_move {from to} {
     global G
-    global GUI
     if {[catch {$G(board) move $from $to} err]} {
+        # log error to console?
         puts "error: $err"
     } else {
-        $win itemconfigure "selected" -outline $GUI(outlineColor)
-        $win dtag "selected" "selected"
         gui_place_pieces [$G(board) pieces]
     }
 }
 
-proc gui_push {win from to} {
+proc app_push {from to} {
     global G
-    global GUI
     if {[catch {$G(board) push $from $to} err]} {
+        # log error to console?
         puts "error: $err"
     } else {
-        $win itemconfigure "selected" -outline $GUI(outlineColor)
-        $win dtag "selected" "selected"
         gui_place_pieces [$G(board) pieces]
     }
 }
