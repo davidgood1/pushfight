@@ -13,7 +13,7 @@ set GUI(anchorColor) red
 set GUI(selectColor) magenta
 set GUI(outlineColor) black
 
-proc reload_app {} {
+proc app_reload {} {
     global GUI
 
     # Destroy everything
@@ -22,10 +22,32 @@ proc reload_app {} {
     source pushfight.tcl
     source pushfight_app.tcl
 
-    create_app
+    app_create
 }
 
-proc create_app {{win ""}} {
+proc app_move {from to} {
+    global G
+    if {[catch {$G(board) move $from $to} err]} {
+        # log error to console?
+        puts "error: $err"
+    } else {
+        app_moves_add [list move $from $to] [$G(board) pieces]
+        gui_place_pieces [$G(board) pieces]
+    }
+}
+
+proc app_push {from to} {
+    global G
+    if {[catch {$G(board) push $from $to} err]} {
+        # log error to console?
+        puts "error: $err"
+    } else {
+        app_moves_add [list push $from $to] [$G(board) pieces]
+        gui_place_pieces [$G(board) pieces]
+    }
+}
+
+proc app_create {{win ""}} {
     global G
 
     # Create left / right paned window
@@ -269,26 +291,6 @@ proc gui_click {win x y} {
         } else {
             app_push [gui_get_loc_by_piece $win $selected] $loc
         }
-    }
-}
-
-proc app_move {from to} {
-    global G
-    if {[catch {$G(board) move $from $to} err]} {
-        # log error to console?
-        puts "error: $err"
-    } else {
-        gui_place_pieces [$G(board) pieces]
-    }
-}
-
-proc app_push {from to} {
-    global G
-    if {[catch {$G(board) push $from $to} err]} {
-        # log error to console?
-        puts "error: $err"
-    } else {
-        gui_place_pieces [$G(board) pieces]
     }
 }
 
