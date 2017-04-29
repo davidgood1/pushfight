@@ -25,13 +25,41 @@ proc app_reload {} {
     app_create
 }
 
+proc app_hist {args} {
+    global G
+    if {[llength $args] == 0} {
+        return $G(moves)
+    }
+
+    set moves {*}$args
+    set G(moves) $moves
+
+    $G(lbmoves) delete 0 end
+    foreach move $moves {
+        lassign $move action pieces
+        $G(lbmoves) insert end $action
+    }
+    $G(lbmoves) see 0
+
+    return $G(moves)
+}
+
+proc app_hist_add {action pieces} {
+    global G
+    set move [list $action $pieces]
+    puts "llength moves = [llength $G(moves)], moves = $G(moves)"
+    lappend G(moves) $move
+    $G(lbmoves) insert end $action
+    $G(lbmoves) see end
+}
+
 proc app_move {from to} {
     global G
     if {[catch {$G(board) move $from $to} err]} {
         # log error to console?
         puts "error: $err"
     } else {
-        app_moves_add [list move $from $to] [$G(board) pieces]
+        app_hist_add [list move $from $to] [$G(board) pieces]
         gui_place_pieces [$G(board) pieces]
     }
 }
@@ -42,7 +70,7 @@ proc app_push {from to} {
         # log error to console?
         puts "error: $err"
     } else {
-        app_moves_add [list push $from $to] [$G(board) pieces]
+        app_hist_add [list push $from $to] [$G(board) pieces]
         gui_place_pieces [$G(board) pieces]
     }
 }
@@ -61,7 +89,10 @@ proc app_create {{win ""}} {
     pack $lbmoves -expand 1 -fill both
     set G(lbmoves) $lbmoves
     $pwh add $pwv
-
+    if {![info exists G(moves)]} {
+        set G(moves) {}
+    }
+    app_hist $G(moves)
 
     set gui [gui_create $pwv.gui]
     $gui configure -relief solid -borderwidth 2 -padx 2 -pady 2
