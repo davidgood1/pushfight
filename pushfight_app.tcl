@@ -25,6 +25,12 @@ proc app_reload {} {
     app_create
 }
 
+proc app_reset {} {
+    global G
+    app_hist {}
+    gui_place_pieces [$G(board) reset]
+}
+
 proc app_hist {args} {
     global G
     if {[llength $args] == 0} {
