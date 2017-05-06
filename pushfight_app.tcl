@@ -51,7 +51,6 @@ proc app_hist {args} {
 proc app_hist_add {action pieces} {
     global G
     set move [list $action $pieces]
-    puts "llength moves = [llength $G(moves)], moves = $G(moves)"
     lappend G(moves) $move
     $G(lbmoves) insert end $action
     $G(lbmoves) see end
