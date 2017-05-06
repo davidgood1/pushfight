@@ -54,6 +54,18 @@ proc app_hist_add {action pieces} {
     lappend G(moves) $move
     $G(lbmoves) insert end $action
     $G(lbmoves) see end
+    $G(lbmoves) selection clear 0 end
+    $G(lbmoves) selection set end
+}
+
+proc app_hist_select {num} {
+    global G
+    if {$num > [llength $G(moves)]} {
+        puts "error: no move number $num"
+        return
+    }
+    set pieces [lindex [lindex $G(moves) $num] 1]
+    gui_place_pieces [$G(board) pieces {*}$pieces]
 }
 
 proc app_move {from to} {
@@ -89,6 +101,7 @@ proc app_create {{win ""}} {
     set f [ttk::labelframe $pwh.lfMoves -text "Move History" -padding 0]
     $pwh add $f
     set lbmoves [listbox $f.lb]
+    $lbmoves configure -selectmode browse
     pack $lbmoves -expand 1 -fill both
     set G(lbmoves) $lbmoves
     $pwh add $pwv
@@ -109,6 +122,10 @@ proc app_create {{win ""}} {
     gui_place_pieces [$G(board) pieces]
 
     app_hist $G(moves)
+
+    # Bind even behaviors
+    bind $G(lbmoves) <<ListboxSelect>> {app_hist_select [%W curselection]}
+
 }
 
 proc app_pieces {{pieces {}}} {
