@@ -34,12 +34,16 @@ proc app_hist {args} {
     set moves {*}$args
     set G(moves) $moves
 
+    # Populate the history list
     $G(lbmoves) delete 0 end
     foreach move $moves {
         lassign $move action pieces
         $G(lbmoves) insert end $action
     }
     $G(lbmoves) see 0
+
+    # Show the starting board
+    gui_place_pieces [$G(board) pieces]
 
     return $G(moves)
 }
@@ -92,7 +96,6 @@ proc app_create {{win ""}} {
     if {![info exists G(moves)]} {
         set G(moves) {}
     }
-    app_hist $G(moves)
 
     set gui [gui_create $pwv.gui]
     $gui configure -relief solid -borderwidth 2 -padx 2 -pady 2
@@ -105,6 +108,8 @@ proc app_create {{win ""}} {
 
     set G(board) [pushfight::board]
     gui_place_pieces [$G(board) pieces]
+
+    app_hist $G(moves)
 }
 
 proc app_pieces {{pieces {}}} {
