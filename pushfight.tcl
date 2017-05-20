@@ -333,6 +333,22 @@ proc pushfight::push {from to pieces} {
     return $pieces
 }
 
+proc pushfight::place {from to pieces} {
+    if {$from eq $to} {
+        return $pieces
+    }
+    if {![isPiece $from $pieces]} {
+        error "no piece at location '$from'"
+    }
+    if {![isBoardLoc $to]} {
+        error "location '$to' is not on the board"
+    }
+    if {[isPiece $to $pieces]} {
+        error "location '$to' is not empty"
+    }
+    return [regsub -all -- $from $pieces $to]
+}
+
 proc pushfight::isPiece {loc pieces} {
     if {[lsearch $pieces $loc] != -1 && $loc ne "-"} {
         return 1

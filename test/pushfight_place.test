@@ -1,0 +1,55 @@
+package require tcltest
+namespace import ::tcltest::*
+
+source ../pushfight.tcl
+
+set DefaultPieces [list C3 C4 A4 B4 D4 A5 D5 B6 B5 C5 -]
+
+test place_returns_newBoard_when_placeIsValid {
+} -body {
+    pushfight::place C3 B3 $DefaultPieces
+} -result {B3 C4 A4 B4 D4 A5 D5 B6 B5 C5 -}
+
+test place_returns_sameBoard_when_toAndFromAreIdentical {
+} -body {
+    pushfight::place A4 A4 $DefaultPieces
+} -result $DefaultPieces
+
+test place_canPlacePiece_when_pathIsBlocked {
+} -body {
+    pushfight::place B4 C6 $DefaultPieces
+} -result {C3 C4 A4 C6 D4 A5 D5 B6 B5 C5 -}
+
+test place_movesAnchor_when_pieceUnderAnchorIsPlaced {
+} -body {
+    pushfight::place D5 D3 {C3 C4 A4 B4 D4 A5 D5 B6 B5 C5 D5}
+} -result {C3 C4 A4 B4 D4 A5 D3 B6 B5 C5 D3}
+
+# Test the from location errors
+test place_returns_errorLocation_when_placingOffOfTheBoard {
+} -body {
+    pushfight::place A4 A2 $DefaultPieces
+} -returnCodes error -result "location 'A2' is not on the board"
+
+test place_returns_errorNoPiece_whenNoPieceAtFromLocation {
+} -body {
+    pushfight::place A3 B3 $DefaultPieces
+} -returnCodes error -result "no piece at location 'A3'"
+
+test place_returns_errorNoPiece_when_bothToAndFromAreInvalid {
+} -body {
+    pushfight::place A3 A2 $DefaultPieces
+} -returnCodes error -result "no piece at location 'A3'"
+
+test place_returns_errorNoPiece_when_fromLocationNotOnBoard {
+} -body {
+    pushfight::place A3 A2 $DefaultPieces
+} -returnCodes error -result "no piece at location 'A3'"
+
+# # Test to location errors
+test place_returns_errorNotEmpty_when_toLocationNotEmpty {
+} -body {
+    pushfight::place C3 C4 $DefaultPieces
+} -returnCodes error -result "location 'C4' is not empty"
+
+cleanupTests
