@@ -28,6 +28,7 @@ proc app_reload {} {
 proc app_reset {} {
     global G
     app_hist {}
+    app_hist_add "Reset" [$G(board) pieces]
     gui_place_pieces [$G(board) reset]
 }
 
@@ -46,30 +47,42 @@ proc app_hist {args} {
         lassign $move action pieces
         $G(lbmoves) insert end $action
     }
-    $G(lbmoves) see 0
-
-    # Show the starting board
-    gui_place_pieces [$G(board) pieces]
 
     return $G(moves)
 }
 
 proc app_hist_add {action pieces} {
     global G
+    set idx [$G(lbmoves) curselection]
+    # If no current selection, default to appending to end of list
+    if {$idx eq {}} {
+        set idx [llength $G(moves)]
+    }
+    # Add move to the move list
     set move [list $action $pieces]
+    set G(moves) [lrange $G(moves) 0 $idx]
     lappend G(moves) $move
+
+    # Add action to the history list
+    $G(lbmoves) delete [incr idx] end
     $G(lbmoves) insert end $action
     $G(lbmoves) see end
     $G(lbmoves) selection clear 0 end
     $G(lbmoves) selection set end
+    $G(lbmoves) activate end
 }
 
 proc app_hist_select {num} {
     global G
-    if {$num > [llength $G(moves)]} {
+    if {$num ne "end" && $num > [llength $G(moves)]} {
         puts "error: no move number $num"
         return
     }
+    # Set the selection, if not set already
+    $G(lbmoves) selection clear 0 end
+    $G(lbmoves) selection set $num
+
+    # Adjust the pieces
     set pieces [lindex [lindex $G(moves) $num] 1]
     gui_place_pieces [$G(board) pieces {*}$pieces]
 }
@@ -92,6 +105,18 @@ proc app_push {from to} {
         puts "error: $err"
     } else {
         app_hist_add [list push $from $to] [$G(board) pieces]
+        gui_place_pieces [$G(board) pieces]
+    }
+}
+
+proc app_place {from to} {
+    global G
+    if {[catch {$G(board) place $from $to} err]} {
+        # log error to console?
+        puts "error: $err"
+    } else {
+        app_hist {}
+        app_hist_add "Setup Pieces" [$G(board) pieces]
         gui_place_pieces [$G(board) pieces]
     }
 }
@@ -120,14 +145,14 @@ proc app_create {{win ""}} {
     set G(gui) $gui
     $pwv add $gui
 
-    $pwv add [ttk::labelframe $pwv.lfConsole -text Console]
+    # $pwv add [ttk::labelframe $pwv.lfConsole -text Console]
 
     pack $pwh -expand 1 -fill both
 
     set G(board) [pushfight::board]
-    gui_place_pieces [$G(board) pieces]
 
     app_hist $G(moves)
+    app_hist_select 0
 
     # Bind even behaviors
     bind $G(lbmoves) <<ListboxSelect>> {app_hist_select [%W curselection]}
@@ -250,18 +275,45 @@ proc gui_create win {
     # Add a little boarder around the board
     $c move all 10 10
 
+    # Add buttons
+    $c move all 0 100
+    $c create rectangle 0 0 199 49 -width 2 -fill lime -tags {button breset breset_box}
+    $c create text 100 25 -text Reset -tags {button breset breset_text}
+    $c create rectangle 600 0 799 49 -width 2 -fill lime -tags {button bsetup bsetup_box}
+    $c create text 700 25 -text "Setup Pieces" -tags {button bsetup bsetup_text}
+    $c move button 110 10
+
     # Mouse Behaviors
-    # TODO: add move behaviors
-    bind $GUI(canvas) <Button-1> {gui_click %W %x %y}
-    bind $GUI(canvas) <Button-3> {gui_right_click %W %x %y}
+    $c bind breset <ButtonPress-1> {%W itemconfigure breset_box -fill red; app_reset}
+    $c bind breset <ButtonRelease-1> {%W itemconfigure breset_box -fill lime}
+
+    gui_enter_normal_mode
 
     return $win
 }
 
-proc gui_place_pieces {pieces} {
+proc gui_enter_setup_mode {} {
     global GUI
     set c $GUI(canvas)
+    $c itemconfigure bsetup_box -fill red
+    $c bind bsetup <Button-1> {gui_enter_normal_mode}
+    $c bind "boardLoc || piece" <Button-1> {gui_setup_click %W %x %y}
+    $c bind "square || anchor" <Button-3> {gui_setup_right_click %W %x %y}
+}
 
+proc gui_enter_normal_mode {} {
+    global GUI
+    set c $GUI(canvas)
+    $c itemconfigure bsetup_box -fill lime
+    $c bind bsetup <Button-1> {gui_enter_setup_mode}
+    $c bind "boardLoc || piece" <Button-1> {gui_normal_click %W %x %y}
+    $c bind "square || anchor" <Button-3> {}
+}
+
+proc gui_place_pieces {pieces} {
+    puts [info level 0]
+    global GUI
+    set c $GUI(canvas)
     # Clear the selection if any
     $c itemconfigure "selected" -outline $GUI(outlineColor)
     $c dtag "selected" "selected"
@@ -269,19 +321,18 @@ proc gui_place_pieces {pieces} {
     foreach tag {WS1 WS2 WS3 WR1 WR2 BS1 BS2 BS3 BR1 BR2 anchor} loc $pieces {
         set loc [string toupper $loc]
         if {$loc eq "-"} {
-            $c itemconfigure "piece && $tag" -state hidden
+            $c itemconfigure "$tag" -state hidden
         } else {
-            $c itemconfigure "piece && $tag" -state normal
-            lassign [$c bbox "boardLoc && loc_$loc"] x y
-            # HACK: this knows too much about the piece and board size!
-            if {$tag eq "anchor"} {
-                incr x 30
-                incr y 30
-            } else {
-                incr x 10
-                incr y 10
-            }
-            $c moveto "piece && $tag" $x $y
+            $c itemconfigure "$tag" -state normal
+            # Find mid point of boardLoc
+            lassign [$c bbox "boardLoc && loc_$loc"] x1 y1 x2 y2
+            set pt_x [expr $x1 + (($x2 - $x1)/2)]
+            set pt_y [expr $y1 + (($y2 - $y1)/2)]
+            # locate upper left corner of piece relative to board loc midpoint
+            lassign [$c bbox "$tag"] x1 y1 x2 y2
+            set pt_x [expr $pt_x - (($x2 - $x1)/2)]
+            set pt_y [expr $pt_y - (($y2 - $y1)/2)]
+            $c moveto "$tag" $pt_x $pt_y
             # FIXME: Do any tags need updating?
         }
     }
@@ -312,7 +363,8 @@ proc gui_place_pieces {pieces} {
 #     set G(ClickY) $y
 # }
 
-proc gui_right_click {win x y} {
+proc gui_setup_right_click {win x y} {
+    puts [info level 0]
     global GUI
     set loc [gui_get_loc_by_coords $win $x $y]
     if {[gui_get_anchor_loc $win] eq $loc} {
@@ -327,7 +379,31 @@ proc gui_right_click {win x y} {
     }
 }
 
-proc gui_click {win x y} {
+proc gui_setup_click {win x y} {
+    puts [info level 0]
+    global GUI
+    set loc [gui_get_loc_by_coords $win $x $y]
+    set piece [gui_get_piece_by_loc $win $loc]
+    set selected [$win find withtag "selected"]
+    if {$selected eq ""} {
+        # Look for a piece to select
+        if {$piece ne ""} {
+            $win addtag selected withtag $piece
+            $win itemconfigure "selected" -outline $GUI(selectColor)
+        }
+    } else {
+        # Clicking same piece toggles select
+        if {$piece eq $selected} {
+            $win itemconfigure "selected" -outline $GUI(outlineColor)
+            $win dtag $selected "selected"
+        } elseif {$piece eq ""} {
+            app_place [gui_get_loc_by_piece $win $selected] $loc
+        }
+    }
+}
+
+proc gui_normal_click {win x y} {
+    puts [info level 0]
     global GUI
     set loc [gui_get_loc_by_coords $win $x $y]
     set piece [gui_get_piece_by_loc $win $loc]
