@@ -222,10 +222,16 @@ proc gui_create win {
     $c create line 600  00 600 400 -width  2 -tags boardLine
     $c create line 700  00 700 300 -width  2 -tags boardLine
     $c create line 800 100 800 300 -width  2 -tags boardLine
-    $c create line 200  00 700  00 -width 10 -tags boardLine
-    $c create line 100 400 600 400 -width 10 -tags boardLine
+    $c create line 200  00 700  00 -width  2 -tags boardLine
+    $c create line 100 400 600 400 -width  2 -tags boardLine
 
     $c move boardLine 100 0
+
+    $c move all 0 20
+
+    # Create the rails
+    $c create rectangle 300 00 800 20 -fill black -width 0 -tags boardRail
+    $c create rectangle 200 420 700 440 -fill black -width 0 -tags boardRail
 
     # White pieces
     set startLoc loc_A1
