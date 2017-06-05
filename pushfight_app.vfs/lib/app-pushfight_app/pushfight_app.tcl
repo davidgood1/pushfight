@@ -296,7 +296,30 @@ proc gui_create win {
     $c configure -width [expr $x2 + $x1]
     $c configure -height [expr $y2 + $y1]
 
+    bind $c <Configure> {gui_auto_scale %W}
+
     return $win
+}
+
+proc gui_auto_scale {win} {
+    global GUI
+
+    lassign [regsub -all {[x\+]} [winfo geometry $win] { }] win_width win_height
+    set scale_x [format %02.2f [expr ${win_width}  / [$win cget -width].0]]
+    set scale_y [format %02.2f [expr ${win_height} / [$win cget -height].0]]
+
+    # We always want to scale by the smaller of the two scale values
+    set abs_scale [expr ($scale_x < $scale_y) ? [set scale_x] : [set scale_y]]
+
+    lassign [$win bbox all] x1 y1 x2 y2
+    set scale_x [format %02.2f [expr ($x1 + $x2) / [$win cget -width].0]]
+    set scale_y [format %02.2f [expr ($y1 + $y2) / [$win cget -height].0]]
+
+    set cur_scale [expr ($scale_x < $scale_y) ? [set scale_x] : [set scale_y]]
+
+    set scale_factor [expr $abs_scale / $cur_scale]
+
+    $win scale all 0 0 $scale_factor $scale_factor
 }
 
 proc gui_enter_setup_mode {} {
