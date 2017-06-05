@@ -291,6 +291,11 @@ proc gui_create win {
 
     gui_enter_normal_mode
 
+    # Record the completed geometry of the canvas
+    lassign [$c bbox all] x1 y1 x2 y2
+    $c configure -width [expr $x2 + $x1]
+    $c configure -height [expr $y2 + $y1]
+
     return $win
 }
 
@@ -491,4 +496,19 @@ proc gui_get_loc_by_coords {win x y} {
     }
 
     return {}
+}
+
+proc app_show_all {} {
+    global G GUI
+
+    lassign [$GUI(canvas) bbox all] x1 y1 x2 y2
+    set target_width [expr $x2 + $x1]
+    set target_height [expr $y2 + $y1]
+    lassign [regsub -all {[x\+]} [winfo geometry $GUI(canvas)] { }] canvas_width canvas_height
+    lassign [regsub -all {[x\+]} [winfo geometry .] { }] win_width win_height
+
+    # Calculated as total_size = canvas_target + other_window_padding
+    set total_width  [expr $target_width + ($win_width - $canvas_width)]
+    set total_height [expr $target_height + ($win_height - $canvas_height)]
+    wm geometry . ${total_width}x${total_height}
 }
