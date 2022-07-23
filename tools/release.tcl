@@ -9,7 +9,7 @@
 
 array set G {
     Name pushfight_app
-    Runtime tclkit_runtime.exe
+    Runtime tclkit-gui-8.6.6_x64.exe
 }
 
 set G(ToolPath) [pwd]
