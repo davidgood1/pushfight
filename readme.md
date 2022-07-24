@@ -14,11 +14,14 @@ This is an unlicensed, fan-made work. I do not own the rights to the game Push F
 
 ## Running the Application
 
-The application is written in TCL/TK which is an interpreted language (much like Python), so there is no installation. It requires a TCL/TK interpreter to run, and like python, there are several ways to get one, but the easiest is simply to download an interpreter for your OS from [rkeene.org](http://tclkits.rkeene.org/fossil/wiki/Downloads).
+The application is written in TCL/TK which is an interpreted language (much like Python), so there is no installation, but this means it requires an interpreter to run.  There are many to choose from, but the common ways are mentioned here:
 
-**Be sure to use version 8.6 or higher!**
+**Note: Be sure to use TCL/TK version 8.6 or higher!**
 
-Once you have the interpreter, use it to open the .kit file in this repository.
+- **Make a Wish**: Most Mac and Linux systems have a TCL/TK interpreter installed already. Open a command line and type `wish` to see if yours does. If so, load the application with `wish main.tcl` from pushfight_app.vfs directory.
+- **Starkits**: TCL/TK applications can be distributed as platform independent .kit files or else as single file binaries, thanks to a technology called starkits. To get a starkit interpreter for your platform, download one from [rkeene.org](http://tclkits.rkeene.org/fossil/wiki/Downloads) and run it with `tclkit main.tcl` from pushfight_app.vfs or run the .kit with `tclkit pushfight_app-0.2.kit`
+
+- **Python???**: Yes, the Python interpreter itself can run TCL/TK scripts because Python Tkinter is actually the TK graphical library with Python bindings on top. (See, TCL/TK is _really_ cool!) To run this application with your favorite Python interpreter, type `python3 main.py` in the pushfight_app.vfs directory
 
 ## Usage
 
@@ -59,6 +62,8 @@ If brown pushes from B6 to B5, the board then looks like this: `{C3 C4 A4 B3 D4 
 
 
 ## Contributing
+
+I would be "over the moon" if your wanted to help improve this application!
 
 1. Fork it!
 2. Create your feature branch: `git checkout -b my-new-feature`
