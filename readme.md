@@ -18,6 +18,8 @@ The application is written in TCL/TK which is an interpreted language (much like
 
 **Note: Be sure to use TCL/TK version 8.6 or higher!**
 
+- **Run the Binary**: A Windows binary is provided in the bin dir. You can just run that if you trust it.
+
 - **Make a Wish**: Most Mac and Linux systems have a TCL/TK interpreter installed already. Open a command line and type `wish` to see if yours does. If so, load the application with `wish main.tcl` from pushfight_app.vfs directory.
 - **Starkits**: TCL/TK applications can be distributed as platform independent .kit files or else as single file binaries, thanks to a technology called starkits. To get a starkit interpreter for your platform, download one from [rkeene.org](http://tclkits.rkeene.org/fossil/wiki/Downloads) and run it with `tclkit main.tcl` from pushfight_app.vfs or run the .kit with `tclkit pushfight_app-0.2.kit`
 
